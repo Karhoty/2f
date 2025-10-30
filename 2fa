@@ -1,0 +1,24 @@
+import time, hmac, hashlib, struct, base64
+
+def base32_to_bytes(s: str) -> bytes:
+    s = s.strip().replace(' ', '').upper()
+    padding = '=' * ((8 - len(s) % 8) % 8)
+    return base64.b32decode(s + padding, casefold=True)
+
+def hotp(secret_b32: str, counter: int, digits: int = 6, algo=hashlib.sha1) -> str:
+    key = base32_to_bytes(secret_b32)
+    counter_bytes = struct.pack(">Q", counter)
+    h = hmac.new(key, counter_bytes, algo).digest()
+    offset = h[-1] & 0x0F
+    code = struct.unpack(">I", h[offset:offset+4])[0] & 0x7FFFFFFF
+    return str(code % (10 ** digits)).zfill(digits)
+
+def totp(secret_b32: str, digits: int = 6, period: int = 30, algo=hashlib.sha1, for_time=None) -> str:
+    if for_time is None:
+        for_time = int(time.time())
+    counter = int(for_time // period)
+    return hotp(secret_b32, counter, digits, algo)
+
+# Использование:
+secret = "ТВОЙ_BASE32_СЕКРЕТ_ЗДЕСЬ"
+print(totp(secret))  # текущий 6-значный код
