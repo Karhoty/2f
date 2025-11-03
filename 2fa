@@ -20,5 +20,5 @@ def totp(secret_b32: str, digits: int = 6, period: int = 30, algo=hashlib.sha1, 
     return hotp(secret_b32, counter, digits, algo)
 
 # Использование:
-secret = "ТВОЙ_BASE32_СЕКРЕТ_ЗДЕСЬ"
+secret = "ТВОЙ_BASE32_СЕКРЕТ"
 print(totp(secret))  # текущий 6-значный код
